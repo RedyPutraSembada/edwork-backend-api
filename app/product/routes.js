@@ -19,6 +19,10 @@ router.put('/products/:id',
     police_check('update', 'Product'),
     productController.update);
 
+router.get('/products/:id',
+    police_check('read', 'Product'),
+    productController.show);
+
 router.delete('/products/:id',
     police_check('delete', 'Product'),
     productController.destroy);

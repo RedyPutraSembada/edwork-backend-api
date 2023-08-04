@@ -8,6 +8,8 @@ const Tag = require('../tag/model');
 const index = async (req, res, next) => {
     try {
         let { skip = 0, limit = 10, q = '', category = '', tags = [] } = req.query;
+        let tagss = tags ? JSON.parse(tags) : [];
+        // console.log(tags);
 
         let criteria = {};
 
@@ -29,26 +31,39 @@ const index = async (req, res, next) => {
             }
         }
 
-        if (tags.length) {
-            tagsResult = await Tag.find({ name: { $in: tags } });
-
+        if (tagss.length) {
+            // console.log(tagss);
+            // db.products.find({
+            //     $and: [
+            //         { tags: ObjectId("64b7898f3b03b0b83072df00") },
+            //         { tags: ObjectId("64c0cefee61e93cb0eaf71c6") }
+            //     ]
+            // })
+            tagsResult = await Tag.find({ name: { $in: tagss } });
+            console.log(tagsResult);
             if (tagsResult.length > 0) {
                 criteria = {
                     ...criteria,
-                    tags: { $in: tagsResult.map(tag => tag._id) }
+                    $and: tagsResult.map(tag => ({ tags: tag._id }))
                 }
             }
+            console.log(criteria);
         }
 
         let count = await Product.find().countDocuments();
-
+        console.log('criteria');
         console.log(criteria);
 
-        let product = await Product.find(criteria)
-            .skip(parseInt(skip))
-            .limit(parseInt(limit))
+        const explained = await Product.find(criteria)
             .populate("category")
-            .populate("tags");
+            .populate("tags").explain()
+        console.log(explained.queryPlanner)
+
+        let product = await Product.find(criteria)
+            .populate("category")
+            .populate("tags")
+            .skip(parseInt(skip))
+            .limit(parseInt(limit));
         return res.json({
             data: product,
             count: count
@@ -58,12 +73,29 @@ const index = async (req, res, next) => {
     }
 }
 
+const show = async (req, res, next) => {
+    try {
+        let { id } = req.params;
+        let product = await Product.findById(id).populate("category").populate("tags");
+        return res.json(product);
+    } catch (error) {
+        if (err && err.name === "ValidationError") {
+            return res.json({
+                error: 1,
+                message: err.message,
+                fields: err.errors
+            });
+        }
+    }
+}
+
 const store = async (req, res, next) => {
     try {
         let payload = req.body;
 
         //* Update Materi relasi dengan Category
         if (payload.category) {
+            console.log(payload.category);
             let category = await Category.findOne({ name: { $regex: payload.category, $options: 'i' } });
             if (category) {
                 payload = { ...payload, category: category._id };
@@ -76,10 +108,9 @@ const store = async (req, res, next) => {
         if (payload.tags && payload.tags.length > 0) {
             console.log(payload.tags);
             let tags = await Tag.find({ name: { $in: payload.tags } });
+            console.log(tags);
             if (tags.length > 0) {
                 payload = { ...payload, tags: tags.map(tag => tag._id) };
-            } else {
-                delete payload.tags;
             }
         }
 
@@ -95,7 +126,8 @@ const store = async (req, res, next) => {
 
             src.on('end', async () => {
                 try {
-                    let product = new Product({ ...payload, image_url: filename })
+                    let product = new Product({ ...payload, image_url: filename });
+                    console.log(product);
                     await product.save()
                     return res.json(product);
                 } catch (err) {
@@ -135,6 +167,8 @@ const store = async (req, res, next) => {
 }
 
 const update = async (req, res, next) => {
+    console.log(req.body);
+    console.log(req.file);
     try {
         let payload = req.body;
         let { id } = req.params;
@@ -239,5 +273,6 @@ module.exports = {
     index,
     store,
     update,
-    destroy
+    destroy,
+    show
 }

@@ -55,7 +55,8 @@ const store = async (req, res, next) => {
 const index = async (req, res, next) => {
     try {
         let { skip = 0, limit = 10 } = req.query;
-        let count = await Order.find({ user: req.user._id }).countDocument();
+        let count = await Order.find({ user: req.user._id }).countDocuments();
+        console.log(count);
         let orders = await Order.find({ user: req.user._id }).skip(parseInt(skip)).limit(parseInt(limit)).populate('order_items').sort('-createdAt');
         return res.json({
             data: orders.map(order => order.toJSON({ virtuals: true })),

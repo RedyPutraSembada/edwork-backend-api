@@ -4,8 +4,10 @@ const CartItem = require('../cart-item/model');
 const update = async (req, res, next) => {
     try {
         const { items } = req.body;
+        // console.log(items);
         const productIds = items.map(item => item.product._id);
         const products = await Product.find({ _id: { $in: productIds } });
+        console.log(products);
         let cartItems = items.map(item => {
             let relatedProduct = products.find(product => product._id.toString() === item.product._id);
             return {

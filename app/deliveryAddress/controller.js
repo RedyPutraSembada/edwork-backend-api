@@ -2,6 +2,30 @@ const { subject } = require('@casl/ability');
 const DeliveryAddress = require('./model');
 const { policyFor } = require('../../utils');
 
+const show = async (req, res, next) => {
+    try {
+        let { id } = req.params;
+        let address = await DeliveryAddress.findById(id).populate("user");
+        let subjectAddress = subject('DeliveryAddress', { ...address, user_id: address.user });
+        let policy = policyFor(req.user);
+        if (!policy.can('update', subjectAddress)) {
+            return res.json({
+                error: 1,
+                message: `You're not allowed to modify this resource`
+            });
+        }
+        return res.json(address);
+    } catch (error) {
+        if (err && err.name === "ValidationError") {
+            return res.json({
+                error: 1,
+                message: err.message,
+                fields: err.errors
+            });
+        }
+    }
+}
+
 const store = async (req, res, next) => {
     try {
         let payload = req.body;
@@ -27,7 +51,7 @@ const store = async (req, res, next) => {
 
 const index = async (req, res, next) => {
     try {
-        let deliveryAddress = await DeliveryAddress.find();
+        let deliveryAddress = await DeliveryAddress.find({ user: req.user._id });
         return res.json(deliveryAddress);
     } catch (err) {
         if (err && err.name === "ValidationError") {
@@ -102,5 +126,6 @@ module.exports = {
     store,
     index,
     update,
-    destroy
+    destroy,
+    show
 }
