@@ -2,6 +2,7 @@ const CartItem = require('../cart-item/model');
 const DeliveryAddress = require('../deliveryAddress/model');
 const Order = require('../order/model');
 const { Types } = require('mongoose');
+const Invoice = require('../invoice/model');
 const OrderItem = require('../order-item/model');
 
 const store = async (req, res, next) => {
@@ -55,13 +56,22 @@ const store = async (req, res, next) => {
 const index = async (req, res, next) => {
     try {
         let { skip = 0, limit = 10 } = req.query;
-        let count = await Order.find({ user: req.user._id }).countDocuments();
-        console.log(count);
-        let orders = await Order.find({ user: req.user._id }).skip(parseInt(skip)).limit(parseInt(limit)).populate('order_items').sort('-createdAt');
-        return res.json({
-            data: orders.map(order => order.toJSON({ virtuals: true })),
-            count
-        });
+        console.log(req.user.role === 'admin');
+        if (req.user.role === 'admin') {
+            let count = await Order.find().countDocuments();
+            let orders = await Order.find().skip(parseInt(skip)).limit(parseInt(limit)).populate('order_items').populate('user').sort('-createdAt');
+            return res.json({
+                data: orders.map(order => order.toJSON({ virtuals: true })),
+                count
+            });
+        } else {
+            let count = await Order.find({ user: req.user._id }).countDocuments();
+            let orders = await Order.find({ user: req.user._id }).skip(parseInt(skip)).limit(parseInt(limit)).populate('order_items').sort('-createdAt');
+            return res.json({
+                data: orders.map(order => order.toJSON({ virtuals: true })),
+                count
+            });
+        }
     } catch (err) {
         if (err && err.name === "ValidationError") {
             return res.json({
@@ -74,7 +84,21 @@ const index = async (req, res, next) => {
     }
 }
 
+const updateStatusOrder = async (req, res, next) => {
+    let { id } = req.params;
+    let { status } = req.body;
+    let orderProduct = await Order.findByIdAndUpdate(id, { status });
+    await Invoice.findOneAndUpdate({ order: orderProduct._id }, { payment_status: 'paid' });
+    let count = await Order.find().countDocuments();
+    let orders = await Order.find().populate('order_items').populate('user').sort('-createdAt');
+    return res.json({
+        data: orders.map(order => order.toJSON({ virtuals: true })),
+        count
+    });
+}
+
 module.exports = {
     store,
-    index
+    index,
+    updateStatusOrder
 }
