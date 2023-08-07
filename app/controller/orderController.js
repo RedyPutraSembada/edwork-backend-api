@@ -1,9 +1,9 @@
-const CartItem = require('../cart-item/model');
-const DeliveryAddress = require('../deliveryAddress/model');
-const Order = require('../order/model');
+const CartItem = require('../model/cartItemModel');
+const DeliveryAddress = require('../model/deliveryAddressModel');
+const Order = require('../model/orderModel');
 const { Types } = require('mongoose');
-const Invoice = require('../invoice/model');
-const OrderItem = require('../order-item/model');
+const Invoice = require('../model/invoiceModel');
+const OrderItem = require('../model/orderItemModel');
 
 const store = async (req, res, next) => {
     try {

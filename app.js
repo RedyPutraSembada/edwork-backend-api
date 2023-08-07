@@ -6,17 +6,17 @@ var logger = require('morgan');
 const cors = require('cors');
 
 //* Middleware
-const { decodeToken } = require('./middlewares');
+const { decodeToken } = require('./app/middlewares');
 
 //* Routes
-const productRoute = require('./app/product/routes');
-const categoryRoute = require('./app/category/routes');
-const tagRoute = require('./app/tag/routes');
-const authRoute = require('./app/auth/routes');
-const deliveryAddressRoute = require('./app/deliveryAddress/routes');
-const cartRoute = require('./app/cart/routes');
-const orderRoute = require('./app/order/routes');
-const invoiceOrder = require('./app/invoice/routes');
+const productRoute = require('./app/routes/productRoute');
+const categoryRoute = require('./app/routes/categoryRoute');
+const tagRoute = require('./app/routes/tagRoute');
+const authRoute = require('./app/routes/authRoute');
+const deliveryAddressRoute = require('./app/routes/deliveryAddressRoute');
+const cartRoute = require('./app/routes/cartRoute');
+const orderRoute = require('./app/routes/orderRoute');
+const invoiceOrder = require('./app/routes/invoiceRoute');
 
 var app = express();
 

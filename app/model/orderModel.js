@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { model, Schema } = mongoose;
 const { AutoIncrementID } = require('@typegoose/auto-increment');
-const Invoice = require('../invoice/model');
+const Invoice = require('./invoiceModel');
 
 const orderSchema = Schema({
     status: {

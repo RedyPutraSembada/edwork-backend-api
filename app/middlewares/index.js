@@ -1,7 +1,7 @@
-const { getToken, policyFor } = require("../utils")
+const { getToken, policyFor } = require("../../utils")
 const jwt = require('jsonwebtoken');
-const config = require('../app/config');
-const User = require('../app/user/model');
+const config = require('../config');
+const User = require('../model/userModel');
 
 function decodeToken() {
     return async function (req, res, next) {

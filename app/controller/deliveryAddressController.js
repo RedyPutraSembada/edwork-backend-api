@@ -1,5 +1,5 @@
 const { subject } = require('@casl/ability');
-const DeliveryAddress = require('./model');
+const DeliveryAddress = require('../model/deliveryAddressModel');
 const { policyFor } = require('../../utils');
 
 const show = async (req, res, next) => {

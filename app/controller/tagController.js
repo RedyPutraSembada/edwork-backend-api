@@ -1,12 +1,12 @@
-const Categories = require('./model');
+const Tag = require('../model/tagModel');
 
 const store = async (req, res, next) => {
     try {
         console.log(req.body);
         let payload = req.body;
-        let category = new Categories(payload);
-        await category.save();
-        return res.json(category);
+        let tag = new Tag(payload);
+        await tag.save();
+        return res.json(tag);
     } catch (err) {
         if (err && err.name === "ValidationError") {
             return res.json({
@@ -22,8 +22,8 @@ const store = async (req, res, next) => {
 const update = async (req, res, next) => {
     try {
         let payload = req.body;
-        let category = await Categories.findByIdAndUpdate(req.params.id, payload, { new: true, runValidators: true });
-        return res.json(category);
+        let tag = await Tag.findByIdAndUpdate(req.params.id, payload, { new: true, runValidators: true });
+        return res.json(tag);
     } catch (err) {
         if (err && err.name === "ValidationError") {
             return res.json({
@@ -38,8 +38,8 @@ const update = async (req, res, next) => {
 
 const destroy = async (req, res, next) => {
     try {
-        let category = await Categories.findByIdAndDelete(req.params.id);
-        return res.json(category);
+        let tag = await Tag.findByIdAndDelete(req.params.id);
+        return res.json(tag);
     } catch (err) {
         if (err && err.name === "ValidationError") {
             return res.json({
@@ -54,8 +54,8 @@ const destroy = async (req, res, next) => {
 
 const index = async (req, res, next) => {
     try {
-        let category = await Categories.find();
-        return res.json(category);
+        let tag = await Tag.find();
+        return res.json(tag);
     } catch (err) {
         if (err && err.name === "ValidationError") {
             return res.json({

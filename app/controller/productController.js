@@ -1,9 +1,9 @@
 const path = require('path');
 const fs = require('fs');
 const config = require('../config');
-const Product = require('./model');
-const Category = require('../category/model');
-const Tag = require('../tag/model');
+const Product = require('../model/productModel');
+const Category = require('../model/categoryModel');
+const Tag = require('../model/tagModel');
 
 const index = async (req, res, next) => {
     try {
